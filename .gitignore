@@ -1,0 +1,19 @@
+# .gitignore
+
+# Python
+*.pyc
+__pycache__/
+env/
+venv/
+
+# Node.js
+node_modules/
+
+# Django
+db.sqlite3
+
+# General
+.DS_Store
+.idea/
+.vscode/
+*.log
