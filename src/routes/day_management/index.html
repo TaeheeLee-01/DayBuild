@@ -1,0 +1,67 @@
+
+<body>
+
+    <div class="img-box"></div>
+    <div class="fragment" style="display:none"></div>
+
+    <style>
+        .img-box {
+            --box--width: 20rem;
+            --box-height: 30rem;
+            --frag-width: calc(var(--box--width) / var(--col));
+            --frag-height: calc(var(--box-height) / var(--row));
+
+            display: flex;
+            flex-wrap: wrap;
+            width: var(--box--width);
+            height: var(--box--height);
+            box-sizing: border-box;
+            border: 1px solid #F1F1F1;
+        }
+
+        .fragment {
+            width: var(--frag-width);
+            height: var(--frag-height);
+            border: 1px solid red;
+            box-sizing: border-box;
+        }
+    </style>
+
+    <script>
+        class GridAnimation {
+            constructor(el, row = 15, col = 15) {
+                this.element = el
+                this.row = row
+                this.col = col
+                this.duration = 2000
+                this.delayDelta = 70
+                this.type = null
+
+                
+                this.element.style.setProperty('--row', this.row)
+                this.element.style.setProperty('--col', this.col)
+
+                this.randomIntBetween = (min, max) => {
+                    return Math.floor(Math.random() * (max - min + 1) + min)
+                }
+            }
+            animate() {
+                for (let i = 0; i < this.row; i++) {
+                    for (let j = 0; j < this.col; j++) {
+                        const fragment = document.createElement('div')
+                        fragment.className = 'fragment'
+                        fragment.style.setProperty('--x', j)
+                        fragment.style.setProperty('--y', i)
+
+                        this.element.appendChild(fragment)
+                    }
+                }
+            }
+        }
+
+        const imgBox = document.querySelector('.img-box');
+        new GridAnimation(imgBox).animate()
+    </script>
+
+
+</body>

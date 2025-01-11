@@ -1,0 +1,1060 @@
+Q. svg 로고 어케 가져옴? 경로 설정했는데 안댕...ㅠㅠ
+
+A. static 디렉토리에 있는 파일은 항상 **절대 경로(/)**로 접근해야 합니다.
+상대 경로로 사용하려면 import를 통해 파일을 가져오거나, 프로젝트 구조를 조정해야 합니다.
+브라우저의 네트워크 탭을 활용하여 요청 경로 문제를 디버깅하세요.
+
+
+Q. 글로벌 css 어케?
+
+A. static에 global.css 를 app.html에 스타일 적용 // 가장 최고위인 +layout.svelte에서 적용 //$lib로 global.css 가져와서 적용
+
+
+
+Q. 내가 그냥 html, css, js로 개발했을 때, 이런 식으로 개발한 JS를 그대로 사용하려면?
+
+A. 이런 식으로 한 JS는 "정적인 JS"임!!! 
+API 함수 등의 JS는 svelte와 같이 써서 svelte에 맞춰서 export해서 하는 형식을 갖추고, 이는 lib에 저장함 -> 진짜 라이브러리처럼 쓰게
+하지만, 정적인 JS는 static에 저장한 다음에 그냥 불러오면 됨.
+
+
+
+Q. chart.js 어케 라이브러리 가져올 수 있음?
+
+A. 
+
+
+Q. 아니 어케 상위 컴포넌트의 변수를 하위 컴포넌트에서 조작가능함? bind 해서? 아래에서 위로 보낼 수 있음?
+
+A. $bindable() 지정해주기
+
+
+
+Q. 그냥 JS로 요소 변화 시키면, svelte에서 감지 못하지 않음?
+
+A. 그러면 감시하는 옵저버 만들면 됨. -> onMount로 옵저버 띄워서 변화 감지할 경우 svelte에서 작동하도록 하기
+
+-> JS observer에 대해 공부해보기~!@~!@ 개꿀이용 MutationObserver 클래스에 대해서 공부하면 참 좋을 듯. 
+
+
+Q. import에서 괄호 하고 안하고 차이는 뭐?
+
+A.  괄호 안쓰는 건, 그게  디폴트로 export 하는 거라!!
+
+default export 사용:
+
+        export default 함수명;
+        import 함수명 from '경로';
+
+named export 사용:
+
+        export const 함수명 = ...;
+        import { 함수명 } from '경로';
+
+
+
+Q. 아래 코드에서, if문이 처음에만 실행되고, 그 뒤에는 X?
+let { name, description, version, goals} = $props();
+    $inspect(name).fn();
+
+
+    //메인 스킬일 경우, 메인스킬 위치를 반응시키기
+    //서브 스킬일 경우, 서브스킬 위치를 반응시키기
+
+    let visible = $state(true);
+
+
+    if (name) {
+        visible = true;
+    } else {
+        visible = false;
+    }
+
+
+A. No No. 우리가 반응할 수 있게  $props를 썼음. 그래서, 이걸로 받아올 게 변화하면 바로 반응해서, name도 자동으로 반응함.
+따라서, 스크립트 안에  name이 들어가는 코드들은 모두 다시 실행됨!!! 마찬가지로 스크립트 말고 태그 등에 들어가 있는 div 등의 컴포넌트들도 다시 실행함!
+-> 이라 생각했는데 시발 작동 안해...
+
+=> 그래서 $effect로 "변화하는지 추적"해서 발동하게 함...ㅋㅋㅋㅋ 아니, 그러면 state를 추적하는 것은
+""추적해서 바뀌었을 경우!!!!! 그것과 관련된 컴포넌트 안에서의 딱 그부분만 바꾸도록 해준다는것이지!!!! 그냥 script를 다시 실행해준다는 게 아니였음퓨ㅠㅠㅠㅠ
+
+
+
+
+Q. css max-width 반응형 기준이 뭐길래 안됬냐?
+
+A. 
+/* Responsive Design */
+@media screen and (max-width: 768px) 
+==> 화면 기준이었다...슈발...
+그래서 div로 쓰이면 효과 없음. "뷰포트 기준이기 때문" -> 그래서 막 head meta에 뷰포트가 이거구나!!! 이거 쓸려고 만들어놓은거구나 왜 굳이? 이랬네
+
+=> @container (max-width: 440px) {
+    .container {
+        background-color: lightcoral;
+        height: 200px;
+    }
+}
+이런식으로 컨테이너 쿼리 문법 써야함(@클래스이름) -> 근데 이건 최신 브라우저에서 지원함...(그래도 대부분은 지원하는듯?)
+
+
+
+
+Q. 내가 컴포넌트에서 지정한 스타일을 외부 js로 요소 불러오고, element.style 이런 식으로 했더니 아무것도 못가져옴;;
+
+A. velte에서 컴포넌트 스타일은 기본적으로 "스코프"(Scoped) 되어 있습니다. 
+이 뜻은 해당 컴포넌트에서 정의한 스타일이 그 컴포넌트 안에서만 적용되고, 외부에서 직접 접근하거나 변경할 수 없도록 보호된다는 의미입니다.
+
+아하!  그러면 컴포넌트에 적용하는 스타일은 그 컴포넌트 안에서만 접근할 수 있기 떄문이구나! 
+그 컴포넌트의 스타일은 외부에서 건들지 못하고, 오로지 그 컴포넌트만 건들 수 있도록!!
+
+
+
+Q. 스벨트에서 each 돌리고 싶은데, 대상이 리스트객체가 아니라 그냥 숫자
+
+A. Array.from으로 array 객체 만들어서 하기
+
+
+
+Q. action이 구체적으로 머임? 이벤트핸들러랑 뭔차이?
+
+A. action은 DOM 요소를 직접 컨트롤 할 함수를 전달하는 것. 따라서, node를 인자로 받고, 여기에
+속성 추가, 이벤트핸들러 추가, 스타일 변경 등등 내가 그냥 html, css, js에서 js상으로 조작했던 모든 것들을 여기서 할 수 있으!!!~!@
+
+이벤트핸들러는 그냥 이벤트가 일어나는 그 즉시 할 것!!! 그래서, (e)를 인자로 받음!~!@ - 그리고 스벨트는 이러한 이벤트를 정의할 수도 있긴 한데
+굳이 커스텀이벤트는 안쓰고 기존 이벤트들을 잘 쓰면 될 듯.
+
+
+Q. transition: 은?
+
+A. 얘는 딱 등장 퇴장 애니메이션만 관리!!! action(use:)로도 구현은 가능하지만, transition: 로 이지하게 할 수 있다!
+
+
+Q. store 뭐임?
+
+A. 같이 데이터 쓰자!! 그러면 귀찮게 존나게 bind랑 bindable() 쓸 필요 없자나! 일일히 존나 묶는 게 아니라, 그냥 store에 놓고 한번에~ 가즈아~
+
+
+
+Q. @render children() 이거 뭐임?
+
+A. 자신의 부모컴포넌트에서 "나의 자식으로 넣은 것들!!" 그니까 html 문법 상 내 안에 children으로 집어넣은 것들!!!!
+그래서 
+<나>
+    <차일드/>
+<나>
+
+라고 한 거... 그래서 children()이었던 거임... ㄷㄷㄷ 소오름... 
+그리고 <나> 안에 <header> 이런식으로 쳐 넣으면 그걸로 가져와서 부를 수도 있는 듯 함!!! 확인은 아직
+
+
+
+Q. Context 뭐임?
+
+A. 존나 깊은 곳까지 데이터 주고는 싶은데, 이게 store 쓸 정도로 이곳 저곳~에서 쓰는 게 아닐 때
+이걸로 자식들에게 전달해버리면 알아서 잘 씀! 자신의 맥락!
+
+
+
+Q. $effect 간단하게?
+
+A. 그냥 state 뭐라도 변하면 얘 실행함!ㅋㅋㅋㅋ
+
+
+Q. Loading 함수?
+
+A. 내장함수 -> 데이터 와리가리할 때 이걸로 하자
+
+
+Q. 그러면 store를 사용할 때 여러 곳에서 $effect를 사용하면 엄청 꼬일 수도 있겠네.
+
+맞아요! Store를 사용할 때, 특히 여러 컴포넌트에서 **$effect**를 남발하면 예상치 못한 동작이 발생할 수 있어요.
+
+
+. Derived Store 사용
+Derived Store를 사용하면 Store 값을 가공하거나 파생된 상태를 구독할 수 있습니다. 이를 통해 $effect 없이도 필요한 상태를 처리할 수 있습니다.
+
+. $effect 최소화
+
+
+Q. 구체적으로 왜 +page.server.js를 사용해야 하는지 잘 모르겠어. 
+
+A. **+page.server.js**를 사용하는 이유는 SvelteKit의 데이터 로딩 메커니즘과 SSR(서버 사이드 렌더링), CSR(클라이언트 사이드 렌더링) 사이의 
+역할 분담을 이해하면 명확해집니다.
+
+서버 사이드에서 안전한 데이터 처리
+클라이언트가 직접 접근할 수 없는 데이터(예: 데이터베이스, API 키, 인증 정보 등)를 서버에서 처리해야 할 때 사용.
+클라이언트에서 노출되면 안 되는 민감한 데이터 처리를 안전하게 관리 가능.
+
+SSR(Server-Side Rendering) 지원
+페이지 로드 시 서버에서 데이터를 미리 가져와 렌더링한 HTML을 클라이언트에 제공.
+빠른 초기 로드와 SEO(Search Engine Optimization)에 유리.
+
+ 클라이언트와 서버 간 데이터 흐름 관리
++page.server.js는 클라이언트와 서버 간 데이터 흐름의 중계자 역할을 합니다.
+클라이언트가 필요한 데이터를 서버에서 가져와 컴포넌트에 전달.
+
+
+ 서버에서만 가능한 작업 처리
+파일 시스템 접근, 데이터베이스 쿼리, 비동기 처리 등 클라이언트에서 실행할 수 없는 작업을 처리.
+클라이언트는 서버의 결과만 받아 사용.
+
+ 클라이언트-서버 데이터 요청 최적화
+SvelteKit은 클라이언트가 페이지를 네비게이션할 때 서버에 필요한 데이터만 요청.
+이전에 가져온 데이터를 캐싱하여 불필요한 요청을 줄임.
+
+에러 처리 및 상태 코드 반환
+서버에서 발생한 에러를 클라이언트로 전달하거나, HTTP 상태 코드를 반환.
+
+ Form Actions와 연계
+서버에서 폼 데이터를 처리하고, 결과를 반환.
+POST, PUT, DELETE와 같은 작업을 처리하기에 적합.
+
+
+
+[언제 +page.server.js를 사용해야 할까?]
+서버에서만 접근 가능한 데이터가 필요한 경우:
+데이터베이스, 파일 시스템, 서버에서만 실행되는 API 호출 등.
+초기 로딩 성능을 중요하게 생각할 때:
+SSR을 통해 페이지를 렌더링해야 하는 경우.
+SEO 최적화가 필요한 경우:
+검색 엔진이 서버 렌더링된 콘텐츠를 읽어야 할 때.
+민감한 데이터 처리:
+클라이언트에서 실행하면 보안 문제가 발생할 수 있는 작업.
+
+[언제 사용하지 말아야 할까?]
+클라이언트 전용 데이터를 가져올 때:
+브라우저에서만 사용되는 데이터는 클라이언트에서 직접 처리.
+상호작용이 많은 애플리케이션:
+실시간 업데이트가 필요한 데이터는 WebSocket 또는 클라이언트 API 요청으로 처리.
+
+-> 그래서 내가 스킬 데이터 보내주는 거는 상호작용이 많고 실시간 업데이트의 개념이니까 클라이언트 API 요청으로 잘 처리한듯!~!@~!@~!@~!@~!@~!@~!@~ 오예
+
+
+
+Q. 그러면 store는 브라우저에서 캐시처리하도록 시킨다음, 캐시에 다른 거 묶는 거임?
+
+NONo // store -> 브라우저 메모리 (변수 관리 부분)
+쿠키 -> 이건 따로 영역이 있어서 서버 간에 계속 데이터 와리가리 할 때 주로 쓰는 부분
+
+ Store의 역할
+Store는 브라우저 메모리에서 동작하며, 클라이언트 측 상태를 반응형으로 관리합니다.
+쿠키를 직접 해석하거나 관리하지 않습니다.
+주로 UI 업데이트나 상태 공유에 사용됩니다.
+
+ 쿠키의 역할
+쿠키는 클라이언트와 서버 간에 데이터를 전달하거나 영구적인 상태를 저장하는 데 사용됩니다.
+보통 인증 토큰, 세션 정보, 사용자 설정 값을 저장합니다.
+
+
+
+쿠키와 Store를 분리 관리
+쿠키는 주로 영구 데이터 저장과 서버와의 통신에 사용하고, Store는 UI 상태 관리에 사용하도록 분리하는 것이 일반적입니다.
+
+
+
+Q. svelte.js와 .js의 차이점은 뭐야?
+
+action.svelte.js와 action.js의 차이는 파일 이름의 의미와 그 파일이 프로젝트에서 사용되는 컨텍스트에 따라 다릅니다. 이 둘은 특정 규칙이나 기능적 차이를 강제하지 않지만, 파일 네이밍 컨벤션과 의미적 구분을 위해 다른 이름을 사용할 수 있습니다.
+
+action.svelte.js
+의미: svelte.js라는 접미사는 보통 Svelte에 특화된 기능이나 Svelte 컴포넌트와 밀접하게 관련된 코드를 나타내는 데 사용됩니다.
+용도:
+Svelte 프로젝트에서 사용되는 Svelte 액션을 정의할 때 주로 사용됩니다.
+이 파일이 Svelte의 use: 디렉티브를 위해 작성된 액션이라는 것을 명시적으로 알리는 역할을 합니다.
+Svelte 프로젝트 외부에서 재사용하기보다는, Svelte 앱 내부에서만 사용되는 경우에 적합합니다.
+
+action.js
+의미: action.js는 더 일반적인 자바스크립트 파일을 의미하며, Svelte에 국한되지 않은 동작이나 로직을 포함할 수 있습니다.
+용도:
+특정 프레임워크(Svelte)에 종속되지 않는 일반 자바스크립트 유틸리티나 함수형 코드를 작성할 때 사용됩니다.
+Svelte 프로젝트 외부에서도 재사용할 가능성이 있는 코드에 적합합니다.
+action.js 파일은 Svelte의 use: 디렉티브를 위한 액션으로도 사용될 수 있지만, 파일 이름만 보고는 이를 바로 알기 어렵습니다.
+
+Svelte 전용 프로젝트:
+Svelte와 관련된 액션을 작성할 때 action.svelte.js를 사용하면 의도가 명확해집니다.
+프레임워크 독립적인 코드:
+Svelte 외부에서도 재사용 가능하도록 설계된 코드라면 action.js를 사용하는 것이 좋습니다.
+일관성 유지:
+팀에서 네이밍 규칙을 정해 프로젝트 전반에 걸쳐 일관성을 유지하는 것이 중요합니다.
+
+결론적으로, 기능에는 차이가 없지만 파일 이름으로 코드의 용도를 명시적으로 나타내는 데 초점이 맞춰져 있습니다. 😊
+
+
+
+Q. $props();로 받아온 거는, 내부에서 값을 변경할 수 있어? 그리고 변경했을 경우, $state로 한 것처럼 DOM이 반응할 수 있어?
+
+A. $props()로 받아온 값은 단방향 데이터 흐름의 원칙을 따르기 때문에, 컴포넌트 내부에서 직접 변경할 수 없습니다. 또한, $props()로 받은 값을 변경하려 해도 부모 컴포넌트에 자동으로 반영되거나 DOM이 반응하지 않습니다. $state()와는 다르게 동작합니다.
+
+
+
+
+
+Q. 구체적으로 {}의 의미 
+
+A. 자바스크립트 코드 부분!!! 이걸 체크해야함. 그러면 { }에 무조건 변수를 집어넣을 필요 없이, name.toUpperCase() 이런 걸로 굳이 변수 derived로 하나 더 만들 필요 x
+
+
+
+Q. 아니 그냥 svelte.js 파일에 state 저장하고 export하는 게 store보다 개꿀 아님? 
+
+A. Svelte 5의 $state는 store의 현대적이고 간결한 대안입니다.
+$state는 writable store와 거의 동일하게 동작하지만, 더 직관적이고 간단한 문법을 제공합니다.
+복잡한 상태 관리나 메서드 기반의 상태 제어가 필요한 경우에는 여전히 기존의 store를 사용할 수 있습니다. 😊
+-> 상태제어가 핵심이면 store인듯
+
+그리고, store은 그냥 범용적으로 쓸 수 있는 js이고, state를 파일에 저장하는 형식은 svelte.js라고 이름지은 것처럼 스벨트만의 문법을 사용해서 만든 거라...그거취향차이인듯
+
+=> 이거는 같은 계층에서 자신의 친척들과 state를 공유해야 할 때~!@~!@~@~!@~!@~!@~!@로 일단 예시가 쓰임.
+그리고 나도 이럴 때가 적절하다고 느끼지, 상하 컴포넌트 사이의 state를 이런 식으로 공유하는 것은!! 장유유서...가 아니라 컴포넌트의 기본 구조에서 벗어난다고 생각함.
+
+
+이게 바로 컴포넌트의 근본~!@@~!@~!@~!@~!@~!@~!@~!@~!@~!@~!@~!@~!@~!@~!@
+
+
+
+
+Q. 구체적으로 이베트핸들링 vs bind vs 등등!!! 언제 써야 하는지 진짜 너무 잘 모르겠엄.
+
+A. 
+
+case 1 : 자식컴포넌트에 이벤트가 일어날 경우, 부모 컴포넌트에서 제어하기 : 자식이 클릭당했어! 그러면 부모에서 state가 바뀌어야 해! 이런 게 Event에 관한 것
+case 2 : 자식컴포넌트에서 이벤트가 일어나서, 데이터를 받아와서 부모의 state를 변경해야함 : 1-커스텀이벤트 // 2-그냥 양방향이니까 하나의 컴포넌트로 합체 
+3- bind -> 거의 합체 수준 // 4 -상태 변경 함수 전달 
+
+간단한 경우: bind를 사용하세요.
+여러 컴포넌트 간 상태 공유: store를 사용하세요.
+명확한 이벤트 흐름: Custom Event를 사용하세요.
+특정 상황에서 부모 상태 제어: 상태 변경 함수를 전달하세요.
+
+상태 변경 함수 전달 ->
+function updateParentState(newValue) {
+        parentState = newValue;
+    }
+</script>
+
+<Child onUpdate={updateParentState} />
+=> child에서 $props()로 function을 받아서 실행하는 거임!! 이거 은근 좋은 듯!!
+
+
+
+
+Q. svelte5의 state에 객체를 할당했을 때, 객체 안의 객체는 그냥 참조자가 바뀔 경우에 변화를 감지해? 아니면 내부 객체의 속성 데이터가 바뀔 경우까지 감지해?
+
+A. Svelte 5의 $state를 사용하는 경우, **객체 안의 객체(중첩된 객체)**는 참조자 자체가 변경되었을 때만 변화를 감지합니다. 내부 객체의 속성 데이터가 바뀌어도 참조가 동일하다면 변화가 감지되지 않습니다.
+
+작동 원리
+$state는 기본적으로 얕은 감지(Shallow Reactivity) 방식으로 동작합니다.
+상태가 변경되었다고 인식되려면:
+객체의 참조가 변경되어야 합니다.
+즉, state.someObject = newObject처럼 객체를 완전히 교체해야 상태 변경이 감지됩니다.
+객체 내부의 속성만 변경할 경우, 상태 변경으로 감지되지 않습니다.
+
+
+
+상태 변화를 명확히 감지하려면:
+객체를 완전히 교체하거나,
+writable 스토어를 사용하거나,
+상태 관리 방식을 적절히 설계해야 합니다. 😊
+
+
+Q. 부모 컴포넌트에게 데이터 보내는 법 -> bindable / contextAPI / store -> 셋 중 하나 쓰면 됨.
+그리고 제어하는 것은 '이벤트 핸들러임'
+
+A. 응 맞아~ 그리고 제어하는 거랑 데이터 전송은 다른 개념임!!!!!
+
+
+Q. 자식에서 이벤트가 일어나면 그 자식 안에서 이벤트 핸들러가 발동하는 동시에 이 이벤트가 부모한테 전파되서 부모에서도 이벤트핸들러가 일어나는 식으로 설계하면 많이 그런가?
+
+
+
+A. 이 패턴의 작동 방식
+자식 컴포넌트:
+
+특정 이벤트가 발생하면 이벤트 핸들러가 작동.
+dispatchEvent 또는 Svelte의 createEventDispatcher를 통해 이벤트를 부모로 전파.
+부모 컴포넌트:
+
+자식 컴포넌트에서 발생한 이벤트를 수신하여 추가적인 작업 수행.
+장점
+명확한 이벤트 흐름:
+
+자식 컴포넌트는 자신의 이벤트를 처리하고, 부모에게 데이터를 전달.
+부모는 전달받은 데이터를 사용하여 상위 수준의 로직을 처리.
+구조적인 설계:
+
+이벤트의 역할과 처리 범위가 명확히 분리됨.
+자식은 "이벤트 발생 및 초기 처리"에 집중하고, 부모는 "상위 로직"에만 집중.
+유연성:
+
+부모와 자식 컴포넌트 간 의존성을 최소화하면서 필요한 데이터를 전달 가능.
+단점
+이벤트 체인 복잡성:
+
+이벤트가 부모를 거쳐 또 다른 상위 컴포넌트로 계속 전파되면 추적하기 어려움.
+중첩된 컴포넌트 구조에서는 디버깅과 유지보수가 어려워질 수 있음.
+중복된 로직:
+
+자식과 부모에서 동일한 이벤트를 처리하는 경우 중복 로직이 생길 수 있음.
+성능 저하 가능성:
+
+많은 이벤트가 전파되면, 특히 깊이 있는 트리 구조에서 성능에 영향을 줄 수 있음.
+
+
+
+
+Q. 유틸리티함수가 무야?
+
+A. **유틸리티 함수(Utility Function)**란, 특정한 로직이나 기능을 여러 곳에서 재사용할 수 있도록 일반화된 함수입니다.
+
+이 함수들은 보통 공통적이고 자주 반복되는 작업을 처리하기 위해 만들어지며, 비즈니스 로직과는 독립적으로 동작합니다. 쉽게 말해, "자주 쓰이는 편리한 도구"와 같은 역할을 합니다.
+
+유틸리티 함수의 특징
+재사용성
+한 번 만들어 놓으면 여러 컴포넌트나 모듈에서 재사용할 수 있습니다.
+
+독립성
+특정한 비즈니스 로직에 의존하지 않고, 독립적으로 동작하도록 설계됩니다.
+
+목적성
+특정 작업이나 계산을 수행하는 데 집중합니다. 예를 들어, 날짜 계산, 문자열 포맷팅, 데이터 검증 등.
+
+모듈화
+유틸리티 함수는 프로젝트의 다양한 부분에서 활용되므로, 보통 별도의 파일이나 디렉토리에 모듈화하여 관리합니다.
+
+
+
+
+Q. time-limit를 날짜 단위로 mongodb에 저장하는데, 2024-03-23 이런식으로 string으로 저장하는 걸 추천해? 아니면 date 형식으로 넣는 걸 추천해?
+
+A. MongoDB에 날짜 데이터를 저장할 때는 Date 타입으로 저장하는 것을 강력히 추천합니다.
+
+Date 타입을 사용하면 날짜 데이터를 처리하는 데 있어서 MongoDB의 강력한 시간 기반 쿼리 기능을 활용할 수 있기 때문입니다.
+
+1. Date 타입의 장점
+시간 기반 쿼리 가능
+Date 타입으로 저장하면 다음과 같은 쿼리를 쉽게 수행할 수 있습니다:
+
+특정 날짜 이전/이후의 데이터 검색
+날짜 범위 필터링 ($gte, $lte)
+날짜 기반 정렬 (sort)
+타임존 고려
+MongoDB의 Date 타입은 ISO 8601 형식(UTC 기준)으로 저장되며, 타임존 변환이 필요할 때 더 유연하게 처리할 수 있습니다.
+
+정확한 연산 지원
+날짜 차이 계산, 특정 시간 더하기/빼기 등의 연산이 쉽고 정확합니다.
+
+쿼리 성능 최적화
+Date 타입은 MongoDB에서 내부적으로 최적화되어 있어, 날짜와 관련된 쿼리 성능이 뛰어납니다.
+
+
+
+
+Q. 아니 Date타입인지 확인하려고 typeof()했는데 안댕... 
+
+A. 단순히 typeof()로 확인 불가능함 그냥 Object 나오는 게 맞음
+
+
+    const isDate = skill.goals[0].time_limit instanceof Date;
+    console.log(isDate); // true (날짜 객체일 경우) 
+
+
+Q. 아니 mongo한테 데이터 받을 때는 그냥 time이거든? 근데, 내가 이걸 api로 와리가리하니까 다시 json으로 클라이언트에 보냄.
+그래서 클라이언트 코드에서는 string으로 받았다 생각해야해 ㅋㅋㅋ 아오 호치마렵네. 
+
+A. 그러면, 똑같이 POST나 PATCH보낼 때도 어차피 다 json으로 받는 거니까 시간을 string으로 받은 다음에 ISOdate인가 뭔가로 감싸서 보내야함
+
+아하! 그래서 json 안에 ISODa뭐시기로 감싸면서 '이거 string을 보내면 거기서 알아서 처리해줘요~ 같은 느낌인듯?
+
+그러면 클라이언트에서 PATCH 보낼 때 안에 함수감싸기 미리 해야것다.
+
+
+
+Q. {#if skill.combo && skill.deactive_limit_day} vs {#if skill.combo & skill.deactive_limit_day}
+
+A. 두 조건문의 차이는 논리 연산자(&&)와 비트 연산자(&)의 사용입니다. 이들은 완전히 다른 연산을 수행합니다.
+
+1.  {#if skill.combo && skill.deactive_limit_day}
+**논리 AND 연산자(&&)**를 사용합니다.
+의미: skill.combo와 skill.deactive_limit_day가 모두 참일 때만 조건이 참이 됩니다.
+사용 목적: 두 값이 모두 truthy(참 같은 값)인지 확인하는 경우에 사용합니다.
+결과:
+skill.combo와 skill.deactive_limit_day가 truthy인 경우에만 조건 블록이 실행됩니다.
+예: 1 && 2의 결과는 2 (truthy).
+
+
+2. {#if skill.combo & skill.deactive_limit_day}
+**비트 AND 연산자(&)**를 사용합니다.
+의미: skill.combo와 skill.deactive_limit_day의 비트 단위에서 AND 연산을 수행합니다.
+사용 목적: 두 값이 숫자일 때, 각 비트의 AND 연산 결과를 얻는 경우에 사용합니다.
+결과:
+이 연산은 비트 단위의 연산 결과가 0이 아니면 truthy로 평가됩니다.
+예: 5 & 3의 결과는 1 (5: 101, 3: 011 → AND: 001).
+
+
+
+
+Q. 아니 이거 개빡치잖아. 너 자꾸 왜 길게 알려줘 임마.
+
+ // ISODate를 datetime-local 형식으로 변환
+    function isoToDatetimeLocal(isoDate) {
+        return new Date(isoDate).toISOString().slice(0, 16); // YYYY-MM-DDTHH:mm
+    }
+
+    // datetime-local 형식을 ISODate로 변환
+    function datetimeLocalToIso(datetimeLocal) {
+        return new Date(datetimeLocal).toISOString();
+    }
+
+    // 기존 ISODate 값 변환: 초기값을 datetime-local 형식으로 변환
+    updatedSkill.goals.forEach((goal) => {
+        if (goal.time_limit) {
+            goal.time_limit = isoToDatetimeLocal(goal.time_limit);
+        }
+    });
+</script>
+
+<!-- Form Rendering -->
+{#each updatedSkill.goals as goal, i}
+    <input
+        type="datetime-local"
+        bind:value={goal.time_limit}
+        on:change={() => (goal.time_limit = datetimeLocalToIso(goal.time_limit))}
+    />
+{/each}
+
+
+
+나A. 에휴 그냥 생각해보니까 그냥 이벤트핸들러로 하면 훨씬 나을 거 같은데? 
+
+이렇게 하면 개꿀이잖아;;
+
+<input
+                type="datetime-local"
+                value={updatedSkill.goals[i].time_limit.slice(0, 16)} 
+                onchange={(e) => {
+                    updatedSkill.goals[i].time_limit = event.target.value + ':00.000Z';
+                }}
+            />
+
+
+
+Q. 내가 editMode라는 변수로 if else를 통해 SkillForm을 불러오고 있어. 그런데, SkillForm에서 updateskill을 정의하고 수정한 다음, editMode를 false로 할 때, updateskill값은 그대로 남아있어?
+
+A. 
+
+
+Q. Wed Dec 11 2024 21:15:00 GMT+0900 (한국 표준시) 이 값을 toISOString()을 했는데, 2024-12-11T12:15:00.153Z 이런 식으로 시간이 바
+
+A.JavaScript의 toISOString() 메서드는 항상 UTC 기준 시간을 반환하기 때문에, 사용자의 로컬 시간대와 다를 수 있습니다.
+
+예를 들어:
+
+Wed Dec 11 2024 21:15:00 GMT+0900 (한국 표준시)는 한국 표준시(KST, UTC+9)입니다.
+이를 toISOString()으로 변환하면 UTC로 변환되어 2024-12-11T12:15:00.153Z가 됩니다.
+Z는 UTC 시간을 나타내는 표기입니다.
+
+
+
+Q. let showPopovers = $derived(Array(updatedSkill.trophies.length).fill(false)); // 이런 식으로 했는데, 여기서 이 코드는 updatedSkill이 변할 때만 추적하는 거야? 아니면, updatedSkill.trophies.length 값이 변했을 때 다시 선언하는거야? [$derived의 핵심질문!~!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!]
+
+A. 이 코드가 작동하는 방식
+$derived의 본질
+showPopovers는 updatedSkill.trophies.length에 의존하여 값을 생성합니다.
+즉, updatedSkill.trophies 배열의 길이가 변하면 새로운 Array(updatedSkill.trophies.length).fill(false) 배열을 생성하여 showPopovers에 할당합니다.
+
+updatedSkill.trophies.length 변경 감지
+updatedSkill.trophies.length가 변경될 때만 showPopovers가 다시 계산됩니다.
+예를 들어, trophies 배열에 요소를 추가하거나 제거하면 trophies.length가 변경되므로 showPopovers가 다시 생성됩니다.
+
+updatedSkill 자체 변경과의 관계
+updatedSkill 객체의 다른 속성이 변경되더라도 trophies.length가 변경되지 않으면 showPopovers는 다시 계산되지 않습니다.
+
+
+
+의도와 결과 확인
+updatedSkill.trophies.length만 추적하고 싶다면 이 코드는 적절합니다. 그러나 updatedSkill.trophies 배열의 요소가 변경(예: 속성 수정)되어도 다시 계산되지 않습니다. 이 점을 의도적으로 설계했는지 확인하세요.
+
+더 구체적인 감지가 필요하다면?
+updatedSkill.trophies 배열 자체가 변경(길이 또는 요소)될 때마다 showPopovers를 업데이트하려면 다음과 같이 접근해야 합니다:
+
+let showPopovers = $derived(() => Array(updatedSkill.trophies.length).fill(false));
+이렇게 하면 updatedSkill.trophies의 참조나 내용이 변경될 때마다 자동으로 showPopovers가 재계산됩니다.
+
+
+와우!@!!!~!@~!@~!@~!@~!@
+
+
+
+Q. 자기가 반응할 때, 또 반응해서 자기의 값을 바꾸는?
+
+A. State referenced in its own scope will never update. Did you mean to reference it inside a closure?svelte(state_referenced_locally)
+
+예제와 문제점
+
+let counter = $state(0);
+
+$effect(() => {
+    counter += 1; // 문제: 여기서 counter를 참조하면서 동시에 값을 변경함
+    console.log(counter);
+});
+
+위 코드는 counter를 업데이트하려는 의도로 작성되었지만, $effect가 실행될 때마다 counter의 참조와 변경이 반복되어 반응성 체계에서 혼란을 일으킵니다.
+
+
+해결방법
+
+1. $state를 직접 대입하거나 참조하지 않기
+$state 변수는 외부에서 값을 설정하거나 변경할 때 사용해야 하며, 내부에서 자신의 값을 직접 참조하지 않아야 합니다.
+
+let counter = $state(0);
+
+// 수정: $effect 내부에서 직접 counter를 참조하지 않음
+$effect(() => {
+    const newCounter = counter + 1;
+    counter = newCounter; // 새로운 값을 counter에 할당
+    console.log(counter);
+});
+2. 반복 작업에는 $effect를 피하고 적절한 메서드 사용
+만약 반복적으로 상태를 업데이트하려면, $effect 대신 명시적으로 함수를 만들어 호출하는 것이 더 안전합니다.
+
+let counter = $state(0);
+
+function incrementCounter() {
+    counter += 1;
+    console.log(counter);
+}
+
+// 함수 호출로 안전하게 counter 변경
+incrementCounter();
+incrementCounter();
+
+
+3. 비교 후 상태 업데이트
+상태가 동일한 값으로 반복 설정되지 않도록 조건을 추가해 불필요한 업데이트를 방지할 수 있습니다.
+
+let counter = $state(0);
+
+$effect(() => {
+    const newCounter = counter + 1;
+    if (counter !== newCounter) {
+        counter = newCounter;
+    }
+    console.log(counter);
+});
+
+
+
+
+
+
+Q. let showPopovers = $state(); // 각 트로피별 팝오버 상태
+    showPopovers = updatedSkill.trophies.map(() => false); 
+
+안되는 이유?
+
+A. 
+이 에러는 Svelte의 $state가 자체적인 상태 관리 방식과 관련된 문제를 설명합니다. **"State referenced in its own scope will never update"**는 $state로 선언된 상태를 그 자체로 재할당하거나 갱신하려고 할 때 발생합니다. $state는 재할당보다는 상태를 내부적으로 직접 수정하고 관리하도록 설계되었습니다.
+
+여기서 $state()로 생성된 상태(showPopovers)는 Svelte의 반응성 시스템에 의해 관리됩니다. 하지만 showPopovers = ...처럼 다시 재할당하면 Svelte의 반응성 시스템에서 이 상태를 제대로 추적하지 못합니다.
+
+
+[state는 한번만 선언하고!!! 추후에 값이 바뀌는 존재인듯]
+
+
+
+
+Q.     let showPopovers = $state(updatedSkill.trophies.map(() => false)); // 각 트로피별 팝오버 상태
+
+
+A. 이거는 state를 처음에 정의하고 시작하는데, 동시에 정의하려고 하니까 생기는 문제. 즉, updatedSkill도 state로 정의하는데, showPopovers도 state로 하니까
+
+-> 해결방법
+
+1. $state를 직접 변경
+$state는 재할당하는 방식이 아니라 내부를 직접 수정해야 합니다. 따라서 배열로 초기화한 후, 값을 수동으로 변경하도록 합니다.
+
+let showPopovers = $state([]); // 초기 상태 빈 배열
+
+// trophies 길이에 맞게 업데이트
+function syncShowPopovers() {
+    showPopovers.splice(0, showPopovers.length, ...updatedSkill.trophies.map(() => false));
+}
+
+
+재할당 vs 수정 ㅍ!!!!!!
+
+
+2. $effect를 사용해 초기화
+$state는 선언 시 동적으로 초기화하기 어려울 수 있으므로, 초기화 과정을 $effect로 분리합니다.
+
+let showPopovers = $state([]); // 빈 배열로 초기화
+
+$effect(() => {
+    showPopovers = updatedSkill.trophies.map(() => false); // trophies가 변경될 때 동기화
+});
+
+
+3. 초기화 시점에서 명시적 분리
+초기화 로직을 함수로 분리해 $state 선언 시점과 참조를 분리합니다.
+
+function initializeShowPopovers() {
+    return updatedSkill.trophies.map(() => false);
+}
+
+let showPopovers = $state(initializeShowPopovers());
+이렇게 하면 초기화 로직과 상태 관리를 명확히 구분할 수 있습니다.
+
+4. 일반 let 변수를 사용
+만약 showPopovers를 반응적으로 추적할 필요가 없다면, 단순히 let을 사용해 초기화할 수 있습니다.
+
+let showPopovers = updatedSkill.trophies.map(() => false); // 일반 변수로 초기화
+이 방식은 반응성이 필요하지 않은 경우에 적합합니다.
+
+
+
+
+
+Q. Uncaught Svelte error: state_unsafe_mutation
+Updating state inside a derived or a template expression is forbidden. If the value should not be reactive, declare it without $state
+
+
+A. 에러의 원인
+$state는 반응형 상태를 추적합니다. 하지만 $state 상태를 템플릿이나 파생 상태에서 직접 수정하면 불변성 원칙을 위반하게 됩니다.
+derived는 계산된 값을 생성하기 위한 목적으로 사용되며, 이 값은 직접 수정할 수 없습니다.
+Svelte의 $effect 또는 반응형 코드에서 $state를 다시 설정하거나 업데이트하려고 할 때도 문제가 발생할 수 있습니다.
+
+아오... {#if updatedSkill.skll_class = 'fundamental'} 이지랄로 등호 하나해서 그랬던 거임
+
+
+Q. 왜 icon 넣었는데 반응 X?
+
+A. ㄷㄷ이건 진짜 크레이지ㅣ
+
+
+문제점 2: trophy.icon_id = icon.id;
+trophy.icon_id를 직접 수정하는 것은 반응성을 깨트릴 수 있습니다. Svelte의 반응성은 객체 속성이 직접 변경될 때 이를 추적하지 못합니다. 따라서, 상태를 변경할 때 항상 객체 전체를 재할당해야 합니다.
+
+수정:
+updatedSkill.trophies[i] = { ...trophy, icon_id: icon.id };
+
+
+
+Q. html에서 form에 onsubmit는 그냥 그 안에 아무 버튼이나 눌리면 발생하는거야?
+
+A. HTML에서 <form> 요소에 onsubmit 이벤트 핸들러를 지정하면, 폼 내부의 아무 버튼이나 눌렀을 때 발생하는 것이 맞습니다. 그러나 몇 가지 조건과 규칙이 있습니다:
+
+
+
+Q. 아니 시발 형제끼리 이벤트 전파가 됬다니까????
+
+조건
+버튼의 타입에 따라 다릅니다.
+
+<button type="submit"> 또는 <input type="submit">:
+이런 버튼을 누르면 폼의 onsubmit 이벤트가 트리거됩니다.
+<button type="button">:
+type="button"인 경우 폼 제출과 관련이 없으므로 onsubmit이 트리거되지 않습니다.
+기본적으로 <button> 태그는 type="submit"로 간주되기 때문에 명시적으로 type="button"을 지정하지 않으면 onsubmit이 트리거됩니다.
+폼 제출 조건
+
+기본적으로 폼이 제출될 때 브라우저는 페이지를 새로고침합니다. 이 동작을 막고 싶다면 onsubmit 핸들러에서 event.preventDefault()를 호출해야 합니다.
+
+
+여기서, 부모가 아니잖아. 상위요소와 하위 요소를 따지는 것은 둘이 직계일 때만 따지는 게 아니야?
+ChatGPT의 말:
+맞아요! DOM에서 이벤트 버블링은 부모-자식 간의 관계뿐만 아니라 DOM 트리 상에서 연결된 모든 상위 요소로 이벤트가 전파되는 것을 말합니다. 그래서 형제 요소 간에도 이벤트 버블링 문제가 발생할 수 있습니다, 정확히는 "공통 조상" 요소가 관여하게 됩니다.
+
+이 상황에서의 이벤트 버블링
+예를 들어, 주어진 DOM 구조를 보면:
+
+<label>
+    <button class="trophy-icon-button" onclick={() => { /* showPopoverIndex 변경 */ }}>
+        <img src="..." alt="..." />
+    </button>
+    <div class="popover">
+        <button onclick={() => { /* 아이콘 선택 로직 */ }}>Select Icon</button>
+    </div>
+</label>
+trophy-icon-button 클릭 이벤트:
+
+onclick 이벤트가 실행됩니다.
+popover 내부 버튼 클릭 이벤트:
+
+버튼 클릭 시 해당 이벤트가 발생합니다.
+하지만 이벤트는 여기서 끝나지 않고 DOM 트리를 따라 **<label>**로 올라갑니다.
+label 요소의 자식에 모두 적용:
+
+<label>은 버튼과 팝오버를 모두 포함하는 공통 조상입니다.
+따라서 **trophy-icon-button**에 연결된 핸들러도 실행됩니다.
+형제 요소 간의 이벤트 전파
+형제 요소 간에는 직접적으로 이벤트를 주고받지 않습니다. 하지만 두 요소가 공통 조상을 공유한다면, 이 조상 요소를 통해 이벤트 버블링의 영향을 받을 수 있습니다.
+
+예:
+
+<div id="outer">
+    <button id="button1" onclick="console.log('Button1')">Button 1</button>
+    <button id="button2" onclick="console.log('Button2')">Button 2</button>
+</div>
+button1을 클릭하면 button1의 핸들러만 실행됩니다.
+버블링은 부모(#outer)로만 전파되며, 형제인 button2에는 영향을 주지 않습니다.
+그러나:
+
+<div id="outer" onclick="console.log('Outer Click')">
+    <button id="button1" onclick="console.log('Button1')">Button 1</button>
+    <button id="button2" onclick="console.log('Button2')">Button 2</button>
+</div>
+button1을 클릭하면:
+button1의 핸들러가 실행됩니다.
+이벤트가 부모인 #outer로 전파되며, console.log('Outer Click')도 실행됩니다.
+왜 trophy-icon-button이 다시 클릭되는가?
+주어진 예제에서 popover 내부의 버튼 클릭이 DOM 트리의 **공통 조상인 <label>**을 통해 이벤트 버블링을 일으키고, 다시 trophy-icon-button의 핸들러를 트리거하게 되는 것입니다.
+
+이 문제는 이벤트 전파를 **stopPropagation**으로 차단하거나, 더 세밀한 조건 검사를 통해 해결해야 합니다.
+
+
+
+
+결국 -> 조상의 이벤트까지 ON!!! 시켰음. ==> 이 조상이 다시 아래로 이벤트 전파 ON!!!. 하는 그런 조상이었던 거임 ㄷㄷ 개자식 label
+
+
+그냥 DIV로 하니까 해결~~ 끝!!!! 
+
+결국 문제는 label을 클릭하면 그 하위 버튼 이벤트가 on되는 거였음.. 그래서 공중 클릭해도 버튼 누른 것처럼 되더라 어쩐지...
+
+
+
+Q. 아니 버튼을 눌러서 팝오버를 띄우는데, 팝오버를 제외한 곳을 눌렀을 때 window에 클릭이벤트 감지해서 닫으니까 버튼누르는 순간 닫힘 ㅋㅋㅋ
+
+A. 와...시바 그냥 버튼에 이벤트 전파 막기만 달았으면 끝나는 거였네... 개소름.... 나는 열심히 버튼도 감지하는지에 대한 로직짜려고 함. button 클래스로 html 변수에 저장해서 이거 클릭당한건가~ 이걸로..아오...
+
+
+Q. 여기서, training_set.completed = !training_set.completed; 이 부분은 skill 객체의 training_list 리스트 안에 있는 오브젝트의 completed 속성을 변경한 거잖아. 그러면, svelte는 이런 깊은 변화는 측정하지 못하니까 당연히 여기 업데이트는 못해서 체크표시를 제대로 띄우지 못하는게 맞지 않아?
+
+
+A. 1. 객체의 얕은 복사로 업데이트를 강제
+training_list 배열을 복사해 새로운 배열로 만들어 Svelte가 변경 사항을 감지하도록 할 수 있습니다.
+
+<button class="training-check-box" onclick={() => {
+    // 변경된 객체 복사
+    skill.training_list = skill.training_list.map((item) => 
+        item === training_set
+            ? { ...item, completed: !item.completed } // 특정 item의 completed 변경
+            : item
+    );
+
+    // 경험치 업데이트
+    if (training_set.completed) {
+        addSkillExp(-training_set.exp);  // 체크 해제
+    } else {
+        addSkillExp(training_set.exp);   // 체크
+    }
+}}>
+map을 사용해 training_list 배열을 새로 생성하면 Svelte는 이를 감지하고 DOM을 업데이트합니다.
+
+2. 상태 관리 라이브러리 사용
+$state를 이용하면 상태 관리가 간단해질 수 있습니다. skill.training_list를 $state로 선언하면 내부 속성 변경도 반응성을 가지게 됩니다.
+
+let skill = $state({
+    training_list: [
+        { name: '하루 계획 작성하기', exp: 30, completed: false },
+        // 기타 훈련 데이터
+    ],
+    exp: 0,
+    level: 1,
+});
+그다음, training_list의 요소를 변경하면 반응성이 유지됩니다:
+
+<button class="training-check-box" onclick={() => {
+    training_set.completed = !training_set.completed;
+
+    if (training_set.completed) {
+        addSkillExp(training_set.exp);   // 경험치 증가
+    } else {
+        addSkillExp(-training_set.exp);  // 경험치 감소
+    }
+}}>
+이 경우, $state의 반응성으로 인해 UI가 자동으로 업데이트됩니다.
+
+
+
+[아뭐야!! state로 해주면, 그냥 다 감지한다 이거구나...]
+
+그러면 data일때 감지하지 못한 이유 -> 이건 prop로 받은 거라...아오 슈바!!
+
+
+
+
+Q. 아니 계속 데이터를 못받아온다니까?>
+
+A. 슈발... load 함수에서 받는 건 무조건 data야...시발...
+
+
+
+Q. 와 ㅅㅂ. 진짜 개소름. 내가 .fragment의 css 속성을 style에 정의해서 새로 만드는 fragment에 모두 적용되어야 했어. 그런데, .fragment.s-6Qpz2xhaLyh0  이런식으로 스벨트에서 특정 요소만 적용되게 해놨더라. 
+
+
+A. 
+
+
+아, 이제 문제를 정확히 파악했네요! Svelte에서 컴포넌트 스코프가 기본적으로 활성화되어 CSS가 컴포넌트 내에서만 작동하게 됩니다. 그로 인해, class="fragment"로 생성된 요소가 Svelte의 CSS 스코프 규칙 때문에 스타일을 상속받지 못했던 것입니다.
+
+해결 방법
+이 문제를 해결하려면 Svelte의 스타일링 스코프를 해제하여, CSS가 글로벌하게 적용되도록 만들어야 합니다.
+
+1. :global 사용
+Svelte에서는 :global 키워드를 사용하여 스타일을 전역으로 적용할 수 있습니다.
+
+
+
+
+Q. 아니 /* box-sizing: border-box; */ 했는데도 자꾸 삐꾸가 나요...ㅅㅂ
+
+A. 와... /* box-sizing: border-box; */ 는 box사이즈를 마진 등 여러가지 합친 거를 박스 사이즈로 친다는 뜻!  그런데,   border: 1px solid #F1F1F1; 해버리면 ㅅㅂ 이거는 박스 사이즈 계산 때 뺀다는 뜻...그니까 마진은 쳐 넣어주고, border같은건 빼서...ㅅㅂ border안에는 내가 계산한 width보다 적다는 거임. 그러니까 다 안들어가지 에잉
+
+
+
+
+
+
+
+
+
+할일 
+2. SkillForm 전체 구현 + 디자인까지 끝내기
+3. sveltekit에서 폴더 기능처럼 스킬 > > 이런 식으로 + 마우스 올리면 마치 네비게이션처럼 아래 튀어나오게 
+4. skill 창에서 스킬을 새로 만들 수 있는 창을 만들기(POST용)
+5. 여러 유틸리티 함수 구현하기
+6. api 전체적으로 다듬기
+7. notification 구현하기 -> 크롤링까지 할 수 있도록 하면 뭐가 좋지?
+
+
+추후에 고쳐야하는 중요하지 않은 버그 및 개선점
+1. 눌렀을 때 다른 위치로 focus되는 문제
+2. time이 현지 지역으로 나타나게 하기(유저 정보까지)
+3. SkillForm을 언마운트할 때 내부 state 리셋시키기
+
+
+
+내 설계
+
+1. SkillDetail은 세부 skill 데이터를 관리한다 -> 여기에 이벤트핸들러 같은 거 다 정의해놓기
+
+2.
+
+
+
+
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+
+
+해야할 것
+
+
+=> skills 구현
+=> 데이터 DB 저장용 api 정리
+=> 모든 디테일 하나하나 수정하기(디자인, 모바일, 버그 등 fix)
+=> pinterest와 연동해서 자동 이미지 url 가져오기
+
+-----------------------베타테스트 기간----------------------------
+
+=> css global에서 컴포넌트화 시키기(정말 그 컴포넌트에만 100% 쓰이는 것들만!!!) <- 컴포넌트의 존재의의에 따라서 하기
+=> Ideas 및 릴스 디자인 // 구현
+=> 라이프 플로우 차트 구현
+=> 인공지능 AI 비서 구현(특정 이벤트마다 로그들을 토큰으로 넣기 + 미리 입력해둔 성격을 바탕으로 나에게 말을 걸게 하고, 대화를 더 이어갈 수도 있게 하기)
+=> 유저 기능 구현
+
+
+
+
+스토어 기반으로 제작할까...흠... 그리고, skill을 그대로 받아야 form한테도 그대로 넘겨줄 수 있음요...스토어 쓰면 안이래도 되서 개꿀
+아니면, Context로 자손 중에 쓰고 싶은 놈 알아서 쓰게 하는 것도 나쁘지는 않지만 store가 더 그럴듯한 거 같기도 하고...흠...
+
+- 이태희 전용 한번에 추가하는 것도 만들기(like 클래스카드)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3) 원하는 것
+
+내가 제대로 원하는 게 무엇인지부터 구체화시켜야겟다
+
+-> 디자인 어떻게?
+
+피그마 등등 => 아 어려워
+
+그냥 그리기
+
+draw.io 로 디자인
+
+=> 약 일주일동안 스스로에게 질문하면서 다음과 같이
+
+
+
+이걸 html, css, js로 다시 만들어보자!!
+
+-> grid 등등 디자인 영상 찾아보면서 어찌저찌 삽질 즐겁게 하며
+
+즐거운 삽질
+
+
+-> 최종 
+
+
+///
+
+4) next step
+
+사실 지금까지 한 건 외면 꾸미기. 
+
+그래서 서버와 등등 하나의 서비스에 필요한 여러 가지 기능들을 구현
+
+-> 이런 걸 도와주는 요소 : 프레임워크
+
+
+근데 프레임워크만 막 1년 배우는 사람이 있을 정도로 주객전도인 느낌? 현재 웹개발 시장이 이런 느낌
+
+-> svelte라는 약간 조금 혁신적이지만 실무에 쓰이지 않는 거 => 바로 가즈아~ ㅋㅋㅋㅋㅋㅋㅋ 
+
+막 쓸 데 없다 but 빠르다
+
+빠르면 장떙이지 
+
+-> 바로 튜토리얼
+
+-> 다 영어? ㅇㅋ 그냥 머리 박자
+
+=> 1주일동안 또 열심히~~ 개꿀잼. 
+
+
+5) 구축
+
+
+svelte 기반으로 하나하나 머리 박으면서 구축 on
+
+-> 내가 구현한 기능 하나하나 소개 
+
+몽고디비도 빠르게 공부해서 적용 on!
+
+
+
+
+No 전문적으로 // 짧게 쓰기!! 길게 쓸 필요도 X!
+
+
+
+
+
+
+

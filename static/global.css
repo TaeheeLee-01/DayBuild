@@ -1,0 +1,701 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+
+/* 임시!!! 나중에 다 컴포넌트로 만들어서 조져야함!!알겠느? */
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Navigation */
+.navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #333;
+    color: #fff;
+}
+
+.nav-left {
+    display: flex; /* Flexbox를 사용해 LOGO와 리스트를 한 줄로 배치 */
+    align-items: center;
+    gap: 20px;
+}
+
+.nav-left .logo {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.nav-left ul {
+    list-style: none;
+    display: flex; /* 리스트 항목들을 한 줄로 배치 */
+    padding: 0;
+    margin: 0;
+    gap: 20px;
+}
+
+.nav-right {
+    display: flex; /* Profile과 Log Out을 한 줄로 배치 */
+    gap: 20px;
+    align-items: center;
+}
+
+
+
+/* Container (Grid System) */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px; /* 좌우 여백 추가 */
+    display: grid;
+    grid-template-columns: repeat(12, 1fr); /* 12열 기본 구조 */
+    column-gap: 30px; /* 열 간격 (gutter) */
+}
+
+/* Grid Item 기본 스타일 */
+.grid-item {
+    grid-column: span 12; /* 기본적으로 전체 열을 차지 */
+}
+.grid-item-6 {
+    grid-column: span 6; /* 기본적으로 전체 열을 차지 */
+}
+
+/* Skill Header */
+.skill-header {
+    display: flex; /* Skill Name, Rating, Level을 한 줄로 배치 */
+    justify-content: space-between;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 20px;
+    row-gap: 30px; /* 반응형으로 위아래 나뉠 때, 간격 */
+}
+
+.skill-info {
+    display: flex; /* Skill Name과 Rating을 한 줄로 배치 */
+    flex-wrap: wrap;
+    align-items: center;
+    row-gap: 0; /* 행 간격 (세로 방향) */
+    column-gap: 10px; /* 열 간격 (가로 방향) */
+}
+
+/* Stars Container */
+.stars {
+    display: flex;
+    gap: 10px; /* 별 간격 */
+}
+
+/* 기본 별 스타일 */
+.star {
+    width: 30px;
+    height: 30px;
+}
+
+.star polygon {
+    fill: #ffd966;
+    /* linear-gradient(#fff2cc, #ffd966); */
+    stroke: #d6b656; /* 테두리 색상 */
+    stroke-width: 3; /* 테두리 두께 */
+}
+
+/* 보라색 별 */
+.star.purple polygon {
+    fill: #6a00ff; /* 보라색 채우기 */
+    stroke: #3700cc; /* 테두리 색상 */
+    stroke-width: 3; /* 테두리 두께 */
+}
+
+
+/* Skill Grade Box */
+.skill-grade {
+    padding: 5px 10px; /* 내부 여백 */
+    font-size: 14px;
+    font-weight: bold;
+    color: white; /* 텍스트 색상 */
+    text-transform: uppercase; /* 대문자 변환 */
+    border-radius: 5px; /* 둥근 모서리 */
+    background: linear-gradient(45deg, #d5e8d4, #97D077); /* 초록색 그라데이션 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 박스 그림자 */
+}
+
+
+.skill-level {
+    line-height: 1;
+    font-size: 1.5em;
+}
+
+/* Breakthrough Title */
+.title {
+    grid-column: 1 / -1; /* 전체 열 차지 */
+    font-size: 1.8em;
+    margin-bottom: 10px;
+}
+
+
+/* Values List Styling */
+.values-list h2 {
+    font-size: 1.8em;
+    margin-bottom: 15px;
+    text-align: center;
+    color: #333;
+}
+
+.values-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.values-list li {
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    background: #f7f7f7;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 1.1em;
+    color: #444;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* My Score Section */
+.my-score {
+    text-align: center;
+}
+
+.my-score h2 {
+    font-size: 1.8em;
+    margin-bottom: 15px;
+    text-align: center;
+    color: #333;
+}
+
+.score-circle {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+.score-svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.bg-circle {
+    fill: none;
+    stroke: #eee;
+    stroke-width: 10;
+}
+
+.progress-circle {
+    fill: none;
+    stroke: #4caf50;
+    stroke-width: 10;
+    stroke-dasharray: 502; /* 원의 둘레 */
+    stroke-dashoffset: 502; /* 초기 값 (완전히 감춤) */
+    /* transition: stroke-dashoffset 0.01s ease-in-out; 
+    자바스크립트에서 애니메이션 관리하기 때문에 주석처리*/
+}
+
+/* Surrounding circles */
+.surround-circle {
+    position: absolute; /*여기서 상위 중 relative인 걸 가진 것을 기준*/
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #4caf50;
+    animation: surround-animation 0.6s ease forwards;
+    opacity: 1;
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+/* Positioning the circles */
+.surround-circle:nth-child(1) { top: -10px; left: 50%; transform: translateX(-50%); }
+.surround-circle:nth-child(2) { top: 20%; left: 80%; transform: translate(-50%, -50%); }
+.surround-circle:nth-child(3) { top: 50%; right: -10px; transform: translateY(-50%); }
+.surround-circle:nth-child(4) { bottom: 20%; left: 80%; transform: translate(-50%, 50%); }
+.surround-circle:nth-child(5) { bottom: -10px; left: 50%; transform: translateX(-50%); }
+.surround-circle:nth-child(6) { bottom: 20%; left: 20%; transform: translate(-50%, 50%); }
+.surround-circle:nth-child(7) { top: 50%; left: -10px; transform: translateY(-50%); }
+.surround-circle:nth-child(8) { top: 20%; left: 20%; transform: translate(-50%, -50%); }
+
+@keyframes surround-animation {
+    0% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.score-text {
+    position: absolute;  /*여기서 상위 중 relative인 걸 가진 것을 기준*/
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2em;
+    font-weight: bold;
+    color: #4caf50;
+}
+
+
+/* Breakthrough Box */
+.breakthrough-box {
+    grid-column: span 3; /* 12열 중 3칸 차지 */
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    row-gap: 10px; /*박스, 버튼 사이 gap*/
+}
+
+
+/* Square Box */
+.breakthrough-square {
+    position: relative;
+    width: 100%; /* 부모 크기에서 padding과 margin을 뺀 나머지 중 100% */
+    margin : 0 auto;
+    aspect-ratio: 1; /* 정사각형 유지 */
+    background: #e1d5e7;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* 상단 정렬 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.breakthrough-stars {
+    position: absolute; /* 상단 고정 */
+    top: 10px; /* 박스 상단에서 10px 아래로 */
+    left: 10px; /* 가로 중앙 정렬 */
+}
+/* Text */
+.breakthrough-box p {
+    z-index: 1; /* 텍스트가 별 아래로 겹치지 않도록 설정 */
+    margin: 0; /* 기본 마진 제거 */
+    font-size: 1rem;
+    font-weight: bold;
+    color: #333;
+}
+
+
+.breakthrough-box .buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.breakthrough-box button {
+    width: 40%;
+    padding: 10px;
+    background: #333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* achievement */
+.achievement-item {
+    grid-column: span 4; /* 12열 중 3칸 차지 */
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.achievement-item .achievement-logo {
+    font-size: 2em;
+    margin: 0 0 10px;
+}
+
+.achievement-item .achievement-name {
+    font-weight: bold;
+}
+
+
+.achievement-details {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 10px;
+}
+
+.achievement-belonging {
+    margin: auto 0;
+    padding: 5px 10px; /* 내부 여백 */
+    font-size: 14px;
+    font-weight: bold;
+    color: white; /* 텍스트 색상 */
+    text-transform: uppercase; /* 대문자 변환 */
+    border-radius: 5px; /* 둥근 모서리 */
+    background: linear-gradient(45deg, #d5e8d4, #97D077); /* 초록색 그라데이션 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 박스 그림자 */
+}
+
+
+
+/* Grid Items */
+.grid-item {
+    grid-column: span 12; /* 기본적으로 12열 전체를 차지 */
+}
+
+.accordion-wrapper {
+    grid-column: span 6; /* 가이드라인북이 6열을 차지 */
+}
+
+/* Accordion Styles */
+.accordion {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.accordion-item {
+    border-bottom: 1px solid #ddd;
+}
+
+.accordion-item:last-child {
+    border-bottom: none;
+}
+
+.accordion-header {
+    width: 100%;
+    padding: 15px 20px;
+    background: #f7f7f7;
+    border: none;
+    text-align: left;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    outline: none;
+    transition: background 0.3s ease;
+}
+
+.accordion-header:hover {
+    background: #e2e2e2;
+}
+
+.accordion-content {
+    max-height: 0; /* 기본적으로 숨김 */
+    overflow: hidden;
+    padding: 0 20px;
+    background: #fff;
+    transition: max-height 0.3s ease-out, padding 0.3s ease-out;
+    will-change: max-height; /* 애니메이션 최적화 */
+}
+
+.accordion-content p {
+    margin: 15px 0;
+}
+
+/* Opened Accordion Content */
+.accordion-item.active .accordion-content {
+    max-height: 400px; /* 확장 높이 */
+    padding: 15px 20px;
+}
+
+
+/* Edit Button */
+.edit-button {
+    grid-column: 1 / -1; /* 그리드의 첫 열부터 마지막 열까지 차지 */
+    text-align: right; /* 오른쪽 정렬 */
+    margin: 20px 10px;
+}
+
+.edit-button button {
+    padding: 10px 20px;
+    background: #333;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+/* Responsive Design */
+.wrapper {
+    background-color: lightblue;
+    container-name : skill-container; /* 컨테이너 쿼리 요소 이름 */
+    container-type: inline-size; /* 컨테이너 크기를 기준으로 쿼리 */
+}
+
+@media screen and (max-width: 768px) {
+    ul.nav-list, .nav-right {
+        display: none;
+        /* 추후에 햄버거 만들어서 오프캠퍼스 구현해놓기!!ㅎㅎ
+        right 안에 햄버거 만들고, 그거 display on하면 됨. */
+    }
+}
+
+@container skill-container (max-width: 750px) {
+    .container {
+        grid-template-columns: repeat(6, 1fr); /* 6열 구조 */
+        column-gap: 16px; /* gutter 크기 줄임 */
+    }
+
+    .grid-item {
+        grid-column: span 6; /* 기본적으로 6열 차지 */
+    }
+
+    .main-values {
+        grid-template-columns: repeat(6, 1fr); /* 모바일에서도 동일한 구조 */
+        gap: 16px; /* gutter 크기 */
+    }
+
+    .main-values .values-list,
+    .main-values .chart-section {
+        grid-column: span 6; /* 각각 한 줄 차지 */
+    }
+
+    .breakthrough-box {
+        grid-column: span 6; /* 각 박스가 한 줄 전체 차지 */
+    }
+
+    .breakthrough-square {
+        height: 80px;
+    }
+
+    .breakthrough-box p {
+        font-size : 1.2rem;
+    }
+
+    .trophy {
+        grid-column: span 2;
+    }
+
+    .achievement-item {
+        grid-column: span 6; /* 각 박스가 한 줄 전체 차지 */
+    }
+}
+
+
+
+
+/* 여기는 sub_skill.css */
+
+/* Common Progress Bar Styles */
+.deact-progress-bar,
+.streak-progress-bar {
+    position: relative;
+    width: 100%; /* 부모 요소의 너비에 맞춤 */
+    height: 20px; /* Progress Bar 높이 */
+    background: #f1f1f1; /* Progress Bar 배경색 */
+    border-radius: 10px; /* 둥근 모서리 */
+    overflow: hidden; /* 내부 요소가 넘치지 않도록 */
+    margin-top: 10px; /* 제목과 간격 */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1); /* 내부 그림자 */
+}
+
+/* Progress Indicator */
+.progress {
+    height: 100%; /* Progress Bar 높이를 채움 */
+    background: linear-gradient(to right, #4caf50, #81c784); /* 초록색 그라데이션 */
+    width: 0%; /* 초기 진행률 */
+    border-radius: 10px; /* 둥근 모서리 */
+    transition: width 2s ease-in-out; /* 부드러운 애니메이션 */
+}
+
+
+
+
+/* goal */
+.goal-item {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    background: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    row-gap: 10px;
+}
+
+.goal-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0;
+}
+
+.goal-content-left {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 0;
+}
+
+.goal-content .goal-logo {
+    font-size: 2em;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.goal-content .goal-name {
+    font-weight: bold;
+}
+
+.goal-content p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+
+.goal-details {
+    display: grid; /* 'gird' 오타 수정 */
+    grid-template-columns: 1fr 1fr 1fr; /* 3개의 동일한 열로 그리드 생성 */
+    padding: 0 10px;
+    column-gap: 30px; /* 열 간격 */
+}
+
+.goal-value {
+    grid-column: span 1;
+    display: flex; /* Flexbox 활성화 */
+    justify-content: center; /* 가로 중앙 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0 5px; /* 내부 여백 */
+    font-size: 14px;
+    text-align: center;
+    font-weight: bold;
+    color: rgb(0, 0, 0); /* 텍스트 색상 */
+    text-transform: uppercase; /* 대문자 변환 */
+    border-radius: 5px; /* 둥근 모서리 */
+    background: linear-gradient(to bottom, #f5f5f5, #b3b3b3); /* 회색 그라데이션 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 박스 그림자 */
+}
+
+
+/* Training List */
+.training-set {
+    grid-column: span 6; /* 12열 중 6칸 차지 */
+}
+
+.training-set > ul {
+    margin: 0;
+    padding: 0;
+}
+
+.training-set > ul > li {
+    display: flex;
+    padding: 0;
+    gap: 10px; /* 두 div 사이에 10px 간격 */
+    font-size: 1.2em;
+    height: 55px;
+    margin: 0 0 10px 0;
+}
+
+.training-name {
+    flex: 1;
+    padding: 0 10px;
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #ddd;
+    border-radius: 8%;
+}
+
+.training-name p {
+    display: flex;
+    align-items: center;
+}
+
+.training-check-box {
+    position: relative;
+    height: 100%; /* 부모 크기 기준 */
+    margin : 0 0;
+    aspect-ratio: 1; /* 정사각형 유지 */
+    background: #e1d5e7;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex; /* Flexbox로 중앙 정렬 */
+    justify-content: center; /* 가로 방향 중앙 정렬 */
+    align-items: center; /* 세로 방향 중앙 정렬 */
+    cursor: pointer; /* 클릭 가능하도록 */
+    transition: border 0.3s ease;
+}
+
+.training-check-box:hover {
+    border: 2px solid #007bff; /* 마우스 올렸을 때 테두리 강조 */
+}
+
+.checkmark {
+    width: 100%; /* 박스 내부 크기의 90% */
+    height: 100%; /* 정사각형 유지 */
+    fill: rgb(44, 44, 44); /* 체크 표시 색상 */
+    display: none; /* 기본적으로 숨김 */
+}
+
+.training-check-box.checked .checkmark {
+    display: block; /* 클릭 시 체크 표시 보이기 */
+}
+
+
+/* left set */
+.left-set {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.left-name, .left-streak {
+    flex: 1;
+}
+.left-name { 
+    border: 2px solid gray;
+    border-radius: 8px;
+    font-size: 1.3em;
+}
+
+.left-name p {
+    padding: 0 10px;
+    margin : 0.5em;
+}
+.left-streak p {
+    display: flex;    
+    justify-content: flex-end;
+    margin: 0;
+}
+
+/* Responsive Design */
+@container (max-width: 768px) {
+
+
+    .main-values {
+        grid-template-columns: repeat(6, 1fr); /* 모바일에서도 동일한 구조 */
+        gap: 16px; /* gutter 크기 */
+    }
+
+    .goal-value {
+        grid-column: span 3; /* 각 박스가 한 줄 전체 차지 */
+    }
+}
+
+
+
