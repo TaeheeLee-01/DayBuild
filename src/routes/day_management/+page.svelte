@@ -8,6 +8,7 @@
     let { data } = $props();
     let Daydata = $state({ ...data });
     let editMode = $state(false);
+    let listMode = $state(0);
     let day_reset = $derived(calculateHourDiffbyendHour(Daydata.updatedAt) > 0 ? true : false);
     let mission_progress = $state(0); //0 to 100
     let extra_score = $state(0);
@@ -103,238 +104,407 @@
                 editMode = false;
             }} /> -->
 {:else}
-<main class="container" >
-
-    <!-- skill state -->
-    {#if Daydata.combo && Daydata.deactive_limit_day}
-        <!-- State -->
-        <h2 class="title">State</h2>
-        <div class="deactivation grid-item-6">
-            <h3>Until deactivation: { left_dayt_to_deactive } {left_dayt_to_deactive <= 1 ? 'day' : 'days'}</h3>
-            <div class="deact-progress-bar">
-                <div class="progress"></div>
-            </div>
-        </div>
-        <div class="streak grid-item-6">
-            <h3>Streak: { Daydata.combo } { Daydata.combo <= 1 ? 'day' : 'days' } combo!</h3>
-            <div class="streak-progress-bar">
-                <div class="progress"></div>
-            </div>
-        </div>
-    {/if}
-
-    <!-- Daydata Goals -->
-    {#if Daydata.goals}
-        <h2 class="title">Goal</h2>
-            {#each  Daydata.goals as goal}
-            <div class="goal-item grid-item">
-                <div class="goal-content">
-                    <div class="goal-content-left">
-                        <div class="goal-logo">🏆</div>
-                        <h3 class="goal-name">{ goal.name } { goal.field }</h3>
-                    </div>  
-                    <p>Time limit : { goal.time_limit.split('T')[0] } (<b>{ calculateDDay(goal.time_limit) }</b>) </p>    
-                </div>
-                <div class="goal-details">
-                    {#each goal.values as value}
-                        <div class="goal-value"><p>{ value }</p></div>
-                    {/each}
-                </div>
-            </div>
-        {/each}
-    {/if}
-
-    <!-- Training -->
-    {#if Daydata.day_mission}
-        <!-- Training List -->
-        <h2 class="title">Training List</h2>
-        <div class="training-set">
-            <ul>
-                {#each Daydata.day_mission as mission}
-                <li>
-                    <div class="training-name">
-                        <p>{ mission.name }</p>
-                        <p><i>{ mission.rate }%</i></p>
-                    </div>
-                    <button class="training-check-box" onclick={() => {
-                        mission.completed = !mission.completed;
-                        if (mission.completed) {
-                            Daydata.updatedAt = new Date().toISOString();
-                            mission_progress += mission.rate;
-                        } else {
-                            Daydata.updatedAt = new Date().toISOString();
-                            mission_progress -= mission.rate;
-                        }
-                    }}>
-                        {#if !day_reset && mission.completed}
-                            <svg class="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
-                                <path d="m7.7,404.6c0,0 115.2,129.7 138.2,182.68l99,0c41.5-126.7 202.7-429.1 340.92-535.1c28.6-36.8-43.3-52-101.35-27.62-87.5,36.7-252.5,317.2-283.3,384.64-43.7,11.5-89.8-73.7-89.84-73.7z"/>
-                            </svg>                    
-                        {/if}
-                    </button>
-                </li>
-                {/each}
-            </ul>
-
-            <h2>Sence Manage</h2>
-            <ul>
-                {#each Daydata.extra_mission_skills as mission_skill, i}
-                <li>
-                    <div class="training-name">
-                        <p>{ mission_skill.name } 스킬 프레젠테이션</p>
-                        <p><i>{ mission_skill.deactivation_left } days left</i></p>
-                    </div>
-                    <button 
-                        class="training-check-box particle-button"
-                        style="background-color: #fad7ac;"
-                        onclick={(event) => {
-                            //api 요청
-                            extra_score += 1;
-                            //애니메이션
-                            Particle_event(event);
-                            //체크표시 -> 애니메이션 -> 게이지 확대 + 색깔 애니메이션
-                        }}
-                        aria-label="extra-check-button"
-                    >
-                    </button>
-                </li>
-                {/each}
-            </ul>
-        </div>
-
-        <GridAnimateProgress progress={mission_progress}/>
-
-        <div class="streak grid-item">
-            <h3>To do at Morning</h3>
-            <div class="streak-progress-bar" style="margin: 10px;">
-                <div class="progress"
-                    style="background: linear-gradient(to right, #fff200, #eae999);
-                        transition: all 0.5s ease-in-out;
-                        width: {mission_progress}%;"
-                ></div>
-            </div>
-        </div>
-    {/if}
-
-    <!-- Breakthrough -->
-    {#if Daydata.breakthrough}
-    <h2 class="title">Breakthrough</h2>
-    <div class="day-break-box training-set">
-        <div class="day-break-box-stars stars">
-            {#each Array.from({ length: Daydata.breakthrough.grade[0] }) as _, i}
-                <!-- 보라색 별 -->
-                <svg class="star purple" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                    <polygon points="50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35" />
-                </svg>
-            {/each}
-            {#each Array.from({ length: Daydata.breakthrough.grade[1] }) as _, i}
-                <!-- 노란색 별 -->
-                <svg class="star yellow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-                    <polygon points="50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35" />
-                </svg>
-            {/each}
-        
-        </div>
-        <div class="day-break-rect">
-            <p>{ Daydata.breakthrough.name }</p>
-        </div>
-        <ul>
-            {#each Daydata.breakthrough.step as step}
-                <li>
-                    <div class="training-name">
-                        <p>{ step.name }</p>
-                        <p><i>{ step.rate }%</i></p>
-                    </div>
-                    <button 
-                        class="training-check-box"
-                        style="background-color: #fad7ac;"
-                        onclick={(event) => {
-                            //api 요청
-                            step.completed = !step.completed;
-                            if (step.completed) {
-                            // Daydata.updatedAt = new Date().toISOString();
-                            step_progress += step.rate;
-                            } else {
-                                // Daydata.updatedAt = new Date().toISOString();
-                                step_progress -= step.rate;
-                            }
-                        }}
-                        aria-label="extra-check-button"
-                    >
-                        {#if step.completed}
-                            <svg class="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
-                                <path d="m7.7,404.6c0,0 115.2,129.7 138.2,182.68l99,0c41.5-126.7 202.7-429.1 340.92-535.1c28.6-36.8-43.3-52-101.35-27.62-87.5,36.7-252.5,317.2-283.3,384.64-43.7,11.5-89.8-73.7-89.84-73.7z"/>
-                            </svg>                    
-                        {/if}
-                    </button>
-
-                </li>
-            {/each}
-        </ul>
+    <!-- 네비게이션 -->
+    <div class="navigation-buttons">
+        <button class="nav-btn" class:active={listMode === 0} onclick={() => listMode = 0}>
+            Ignition
+        </button>
+        <button class="nav-btn" class:active={listMode === 1} onclick={() => listMode = 1}>
+            Essential Tranining
+        </button>
+        <button class="nav-btn" class:active={listMode === 2} onclick={() => listMode = 2}>
+            Power overwhealming
+        </button>
     </div>
-
-    <GridAnimateProgress progress={step_progress}/>
-    {/if}
-
-    <!-- Project -->
-    {#if Daydata.projects}
-        <h2 class="title">Project</h2>
-        {#each Daydata.projects as project, i}
-            
-            <div class="project-box">
-                <div class="day-break-rect">
-                    <p>{ Daydata.breakthrough.name }</p>
-                </div>
-                <ul>
-                    {#each project.steps as step}
+    {#if listMode == 0}
+        <main class="container" >
+            <!-- Ignition list -->
+            {#if Daydata.day_mission}
+                <!-- Training List -->
+                <h2 class="title">Training List</h2>
+                <div class="training-set">
+                    <ul>
+                        {#each Daydata.day_mission as mission}
                         <li>
                             <div class="training-name">
-                                <p>{ step.name }</p>
-                                <p><i>{ step.rate }%</i></p>
+                                <p>{ mission.name }</p>
+                                <p><i>{ mission.rate }%</i></p>
                             </div>
-                            <button 
-                                class="training-check-box"
-                                style="background-color: #fad7ac;"
-                                onclick={(event) => {
-                                    //api 요청
-                                    step.completed = !step.completed;
-                                    if (step.completed) {
-                                    // Daydata.updatedAt = new Date().toISOString();
-                                    project_progress[i] += step.rate;
-                                    } else {
-                                        // Daydata.updatedAt = new Date().toISOString();
-                                        project_progress[i] -= step.rate;
-                                    }
-                                }}
-                                aria-label="extra-check-button"
-                            >
-                                {#if step.completed}
+                            <button class="training-check-box" onclick={() => {
+                                mission.completed = !mission.completed;
+                                if (mission.completed) {
+                                    Daydata.updatedAt = new Date().toISOString();
+                                    mission_progress += mission.rate;
+                                } else {
+                                    Daydata.updatedAt = new Date().toISOString();
+                                    mission_progress -= mission.rate;
+                                }
+                            }}>
+                                {#if !day_reset && mission.completed}
                                     <svg class="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
                                         <path d="m7.7,404.6c0,0 115.2,129.7 138.2,182.68l99,0c41.5-126.7 202.7-429.1 340.92-535.1c28.6-36.8-43.3-52-101.35-27.62-87.5,36.7-252.5,317.2-283.3,384.64-43.7,11.5-89.8-73.7-89.84-73.7z"/>
                                     </svg>                    
                                 {/if}
                             </button>
-
                         </li>
-                    {/each}
-                </ul>
+                        {/each}
+                    </ul>
+
+                    <h2>Sence Manage</h2>
+                    <ul>
+                        {#each Daydata.extra_mission_skills as mission_skill, i}
+                        <li>
+                            <div class="training-name">
+                                <p>{ mission_skill.name } 스킬 프레젠테이션</p>
+                                <p><i>{ mission_skill.deactivation_left } days left</i></p>
+                            </div>
+                            <button 
+                                class="training-check-box particle-button"
+                                style="background-color: #fad7ac;"
+                                onclick={(event) => {
+                                    //api 요청
+                                    extra_score += 1;
+                                    //애니메이션
+                                    Particle_event(event);
+                                    //체크표시 -> 애니메이션 -> 게이지 확대 + 색깔 애니메이션
+                                }}
+                                aria-label="extra-check-button"
+                            >
+                            </button>
+                        </li>
+                        {/each}
+                    </ul>
+                </div>
+
+                <GridAnimateProgress progress={mission_progress}/>
+
+                <div class="streak grid-item">
+                    <h3>To do at Morning</h3>
+                    <div class="streak-progress-bar" style="margin: 10px;">
+                        <div class="progress"
+                            style="background: linear-gradient(to right, #fff200, #eae999);
+                                transition: all 0.5s ease-in-out;
+                                width: {mission_progress}%;"
+                        ></div>
+                    </div>
+                </div>
+            {/if}
+
+            <!-- Edit Button -->
+            <div class="edit-button">
+                <button onclick={() => {editMode = true}}>Edit</button>
             </div>
-            <GridAnimateProgress progress={project_progress[i]}/>
-        {/each}
+        </main>
+    {:else if listMode == 1}
+        <main class="container" >
+            <!-- Training -->
+            {#if Daydata.day_mission}
+                <!-- Training List -->
+                <h2 class="title">Training List</h2>
+                <div class="training-set">
+                    <ul>
+                        {#each Daydata.day_mission as mission}
+                        <li>
+                            <div class="training-name">
+                                <p>{ mission.name }</p>
+                                <p><i>{ mission.rate }%</i></p>
+                            </div>
+                            <button class="training-check-box" onclick={() => {
+                                mission.completed = !mission.completed;
+                                if (mission.completed) {
+                                    Daydata.updatedAt = new Date().toISOString();
+                                    mission_progress += mission.rate;
+                                } else {
+                                    Daydata.updatedAt = new Date().toISOString();
+                                    mission_progress -= mission.rate;
+                                }
+                            }}>
+                                {#if !day_reset && mission.completed}
+                                    <svg class="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+                                        <path d="m7.7,404.6c0,0 115.2,129.7 138.2,182.68l99,0c41.5-126.7 202.7-429.1 340.92-535.1c28.6-36.8-43.3-52-101.35-27.62-87.5,36.7-252.5,317.2-283.3,384.64-43.7,11.5-89.8-73.7-89.84-73.7z"/>
+                                    </svg>                    
+                                {/if}
+                            </button>
+                        </li>
+                        {/each}
+                    </ul>
+
+                    <h2>Sence Manage</h2>
+                    <ul>
+                        {#each Daydata.extra_mission_skills as mission_skill, i}
+                        <li>
+                            <div class="training-name">
+                                <p>{ mission_skill.name } 스킬 프레젠테이션</p>
+                                <p><i>{ mission_skill.deactivation_left } days left</i></p>
+                            </div>
+                            <button 
+                                class="training-check-box particle-button"
+                                style="background-color: #fad7ac;"
+                                onclick={(event) => {
+                                    //api 요청
+                                    extra_score += 1;
+                                    //애니메이션
+                                    Particle_event(event);
+                                    //체크표시 -> 애니메이션 -> 게이지 확대 + 색깔 애니메이션
+                                }}
+                                aria-label="extra-check-button"
+                            >
+                            </button>
+                        </li>
+                        {/each}
+                    </ul>
+                </div>
+
+                <GridAnimateProgress progress={mission_progress}/>
+
+                <div class="streak grid-item">
+                    <h3>To do at Morning</h3>
+                    <div class="streak-progress-bar" style="margin: 10px;">
+                        <div class="progress"
+                            style="background: linear-gradient(to right, #fff200, #eae999);
+                                transition: all 0.5s ease-in-out;
+                                width: {mission_progress}%;"
+                        ></div>
+                    </div>
+                </div>
+            {/if}
+
+            <!-- Project -->
+            {#if Daydata.projects}
+                <h2 class="title">Project</h2>
+                {#each Daydata.projects as project, i}
+                    
+                    <div class="project-box">
+                        <div class="day-break-rect">
+                            <p>{ Daydata.breakthrough.name }</p>
+                        </div>
+                        <ul>
+                            {#each project.steps as step}
+                                <li>
+                                    <div class="training-name">
+                                        <p>{ step.name }</p>
+                                        <p><i>{ step.rate }%</i></p>
+                                    </div>
+                                    <button 
+                                        class="training-check-box"
+                                        style="background-color: #fad7ac;"
+                                        onclick={(event) => {
+                                            //api 요청
+                                            step.completed = !step.completed;
+                                            if (step.completed) {
+                                            // Daydata.updatedAt = new Date().toISOString();
+                                            project_progress[i] += step.rate;
+                                            } else {
+                                                // Daydata.updatedAt = new Date().toISOString();
+                                                project_progress[i] -= step.rate;
+                                            }
+                                        }}
+                                        aria-label="extra-check-button"
+                                    >
+                                        {#if step.completed}
+                                            <svg class="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+                                                <path d="m7.7,404.6c0,0 115.2,129.7 138.2,182.68l99,0c41.5-126.7 202.7-429.1 340.92-535.1c28.6-36.8-43.3-52-101.35-27.62-87.5,36.7-252.5,317.2-283.3,384.64-43.7,11.5-89.8-73.7-89.84-73.7z"/>
+                                            </svg>                    
+                                        {/if}
+                                    </button>
+
+                                </li>
+                            {/each}
+                        </ul>
+                    </div>
+                    <GridAnimateProgress progress={project_progress[i]}/>
+                {/each}
+            {/if}
+
+            <!-- Edit Button -->
+            <div class="edit-button">
+                <button onclick={() => {editMode = true}}>Edit</button>
+            </div>
+        </main>
+    {:else if listMode == 2}
+        <main class="container" >
+            <!-- skill state -->
+            {#if Daydata.combo && Daydata.deactive_limit_day}
+                <!-- State -->
+                <h2 class="title">State</h2>
+                <div class="deactivation grid-item-6">
+                    <h3>Until deactivation: { left_dayt_to_deactive } {left_dayt_to_deactive <= 1 ? 'day' : 'days'}</h3>
+                    <div class="deact-progress-bar">
+                        <div class="progress"></div>
+                    </div>
+                </div>
+                <div class="streak grid-item-6">
+                    <h3>Streak: { Daydata.combo } { Daydata.combo <= 1 ? 'day' : 'days' } combo!</h3>
+                    <div class="streak-progress-bar">
+                        <div class="progress"></div>
+                    </div>
+                </div>
+            {/if}
+
+            <!-- Daydata Goals -->
+            {#if Daydata.goals}
+                <h2 class="title">Goal</h2>
+                    {#each  Daydata.goals as goal}
+                    <div class="goal-item grid-item">
+                        <div class="goal-content">
+                            <div class="goal-content-left">
+                                <div class="goal-logo">🏆</div>
+                                <h3 class="goal-name">{ goal.name } { goal.field }</h3>
+                            </div>  
+                            <p>Time limit : { goal.time_limit.split('T')[0] } (<b>{ calculateDDay(goal.time_limit) }</b>) </p>    
+                        </div>
+                        <div class="goal-details">
+                            {#each goal.values as value}
+                                <div class="goal-value"><p>{ value }</p></div>
+                            {/each}
+                        </div>
+                    </div>
+                {/each}
+            {/if}
+
+            <!-- Breakthrough -->
+            {#if Daydata.breakthrough}
+                <h2 class="title">Breakthrough</h2>
+                <div class="day-break-box training-set">
+                    <div class="day-break-box-stars stars">
+                        {#each Array.from({ length: Daydata.breakthrough.grade[0] }) as _, i}
+                            <!-- 보라색 별 -->
+                            <svg class="star purple" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                                <polygon points="50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35" />
+                            </svg>
+                        {/each}
+                        {#each Array.from({ length: Daydata.breakthrough.grade[1] }) as _, i}
+                            <!-- 노란색 별 -->
+                            <svg class="star yellow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                                <polygon points="50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35" />
+                            </svg>
+                        {/each}
+                    
+                    </div>
+                    <div class="day-break-rect">
+                        <p>{ Daydata.breakthrough.name }</p>
+                    </div>
+                    <ul>
+                        {#each Daydata.breakthrough.step as step}
+                            <li>
+                                <div class="training-name">
+                                    <p>{ step.name }</p>
+                                    <p><i>{ step.rate }%</i></p>
+                                </div>
+                                <button 
+                                    class="training-check-box"
+                                    style="background-color: #fad7ac;"
+                                    onclick={(event) => {
+                                        //api 요청
+                                        step.completed = !step.completed;
+                                        if (step.completed) {
+                                        // Daydata.updatedAt = new Date().toISOString();
+                                        step_progress += step.rate;
+                                        } else {
+                                            // Daydata.updatedAt = new Date().toISOString();
+                                            step_progress -= step.rate;
+                                        }
+                                    }}
+                                    aria-label="extra-check-button"
+                                >
+                                    {#if step.completed}
+                                        <svg class="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+                                            <path d="m7.7,404.6c0,0 115.2,129.7 138.2,182.68l99,0c41.5-126.7 202.7-429.1 340.92-535.1c28.6-36.8-43.3-52-101.35-27.62-87.5,36.7-252.5,317.2-283.3,384.64-43.7,11.5-89.8-73.7-89.84-73.7z"/>
+                                        </svg>                    
+                                    {/if}
+                                </button>
+
+                            </li>
+                        {/each}
+                    </ul>
+                </div>
+
+                <GridAnimateProgress progress={step_progress}/>
+            {/if}
+
+            <!-- Project -->
+            {#if Daydata.projects}
+                <h2 class="title">Project</h2>
+                {#each Daydata.projects as project, i}
+                    
+                    <div class="project-box">
+                        <div class="day-break-rect">
+                            <p>{ Daydata.breakthrough.name }</p>
+                        </div>
+                        <ul>
+                            {#each project.steps as step}
+                                <li>
+                                    <div class="training-name">
+                                        <p>{ step.name }</p>
+                                        <p><i>{ step.rate }%</i></p>
+                                    </div>
+                                    <button 
+                                        class="training-check-box"
+                                        style="background-color: #fad7ac;"
+                                        onclick={(event) => {
+                                            //api 요청
+                                            step.completed = !step.completed;
+                                            if (step.completed) {
+                                            // Daydata.updatedAt = new Date().toISOString();
+                                            project_progress[i] += step.rate;
+                                            } else {
+                                                // Daydata.updatedAt = new Date().toISOString();
+                                                project_progress[i] -= step.rate;
+                                            }
+                                        }}
+                                        aria-label="extra-check-button"
+                                    >
+                                        {#if step.completed}
+                                            <svg class="" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+                                                <path d="m7.7,404.6c0,0 115.2,129.7 138.2,182.68l99,0c41.5-126.7 202.7-429.1 340.92-535.1c28.6-36.8-43.3-52-101.35-27.62-87.5,36.7-252.5,317.2-283.3,384.64-43.7,11.5-89.8-73.7-89.84-73.7z"/>
+                                            </svg>                    
+                                        {/if}
+                                    </button>
+
+                                </li>
+                            {/each}
+                        </ul>
+                    </div>
+                    <GridAnimateProgress progress={project_progress[i]}/>
+                {/each}
+            {/if}
+
+            <!-- Edit Button -->
+            <div class="edit-button">
+                <button onclick={() => {editMode = true}}>Edit</button>
+            </div>
+        </main>
+    {:else}
+        <h1>listMode else</h1>
     {/if}
-
-
-
-
-    <!-- Edit Button -->
-    <div class="edit-button">
-        <button onclick={() => {editMode = true}}>Edit</button>
-    </div>
-
-</main>
 {/if}
 
 <style>
+
+    .navigation-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .nav-btn {
+        padding: 10px 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background: #f9f9f9;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .nav-btn.active {
+        background: #e1d5e7;
+        border-color: #6a11cb;
+    }
+
+
     .day-break-box {
         grid-column: span 6; /* 12열 중 3칸 차지 */
         border: 1px solid #ddd;
@@ -376,7 +546,7 @@
 
     .container {
         overflow-y: scroll;
-        height: 100vh; /* 부모 높이 명확히 설정해야 스크롤 가능띠!!  추후에 내비게이션 고려해서 하기*/
+        height: calc(100vh - 60px - 77px); /* 네비게이션 바의 높이(40px)와 패딩(20px) 등을 고려한 값 */
     }
 
     ::-webkit-scrollbar {
